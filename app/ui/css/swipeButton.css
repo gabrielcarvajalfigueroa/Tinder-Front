@@ -1,0 +1,29 @@
+.swipeButton {
+    display: flex;
+    justify-content: center;
+    margin-top: -20px;
+}
+.button {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 40px;
+    margin: 0 20px;
+    transition: transform 0.3s ease;
+}
+
+.button:hover {
+    transform: scale(1.2);
+}
+
+.heart {
+    color: #ff6b6b;
+}
+
+.refresh {
+    color: #63b3ed;
+}
+
+.times {
+    color: #6c757d;
+}
