@@ -1,6 +1,6 @@
-import ProfileCard from "@/app/ui/profileCard";
-import MatchCard from "@/app/ui/tinderCards";
-import TinderCards from "@/app/ui/tinderCards";
+import ProfileCard from "@/components/ui/profileCard";
+import MatchCard from "@/components/ui/tinderCards";
+import TinderCards from "@/components/ui/tinderCards";
 import React from "react";
 
 export default function UserPage() {

@@ -1,42 +1,13 @@
-import React, { useState, useMemo, useRef } from 'react';
+"use client"
+import "@/components/ui/css/tinderCards.css";
+import "@/components/ui/css/swipeButton.css";
 import TinderCard from "react-tinder-card";
+import React, { useState, useMemo, useRef } from 'react';
 import { TiHeartFullOutline, TiRefresh, TiTimesOutline } from "react-icons/ti";
-import "./css/tinderCards.css";
-import "./css/swipeButton.css";
-
-type Direction = 'left' | 'right' | 'up' | 'down';
-type SwipeHandler = (direction: Direction) => void;
-type CardLeftScreenHandler = (direction: Direction) => void;
-type SwipeRequirementFulfilledUpdate = (direction: Direction) => void;
-type SwipeRequirementUnfulfilledUpdate = () => void;
-
-interface API {
-    swipe(dir?: Direction): Promise<void>;
-    restoreCard(): Promise<void>;
-}
-
-interface Person {
-    name: string;
-    url: string;
-    career: string;
-    year: string;
-}
-
-interface Props {
-    flickOnSwipe?: boolean;
-    onSwipe?: SwipeHandler;
-    onCardLeftScreen?: CardLeftScreenHandler;
-    preventSwipe?: Direction[];
-    swipeRequirementType?: 'velocity' | 'position';
-    swipeThreshold?: number;
-    onSwipeRequirementFulfilled?: SwipeRequirementFulfilledUpdate;
-    onSwipeRequirementUnfulfilled?: SwipeRequirementUnfulfilledUpdate;
-    className?: string;
-    children?: React.ReactNode;
-}
+import {User, API, Direction} from "@/interfaces";
 
 const TinderCards: React.FC = () => {
-    const [peoples, setPeople] = useState<Person[]>([
+    const [peoples, setPeople] = useState<User[]>([
         {
             name: "Duende Lab",
             url: "https://i.pinimg.com/564x/36/7e/93/367e9326f9f9c529951360c1d75c93bf.jpg",
