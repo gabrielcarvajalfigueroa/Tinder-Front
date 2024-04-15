@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 
 export default function EditProfile() {
     return (
@@ -27,9 +28,12 @@ export default function EditProfile() {
                         </div>
                         <div className="mb-4">
                             <label htmlFor="description" className="block text-gray-700">Descripcion:</label>                            
-                            <textarea className="mt-1 h-fit px-4 py-2 w-full border rounded-md focus:outline-none focus:border-blue-500" name="comment" form="usrform"></textarea>
+                            <textarea className="mt-1 px-4 py-2 w-full border rounded-md focus:outline-none focus:border-blue-500" name="comment" form="usrform"></textarea>
                         </div>
-                        {/* Agrega más campos editables según sea necesario */}
+                        
+                        <Link href="/tinder_ucn" className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
+                            Tinderear
+                        </Link>
                     </div>
                 </div>
             </div>

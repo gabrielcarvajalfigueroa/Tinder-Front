@@ -42,5 +42,4 @@ export default function Home({ searchParams }: SearchParamProps) {
       </div>
     </div>
   );
-
-export default Homepage;
+}  

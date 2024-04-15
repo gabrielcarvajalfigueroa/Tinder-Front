@@ -7,7 +7,7 @@ export default function LoginModal() {
 
     async function bekioslab(){
         'use server'        
-        redirect('/edit_profile');
+        redirect('/tinder_ucn');
     }
 
   return (

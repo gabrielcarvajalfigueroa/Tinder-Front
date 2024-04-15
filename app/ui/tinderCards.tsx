@@ -1,3 +1,5 @@
+"use client"
+
 import React, { useState, useMemo, useRef } from 'react';
 import TinderCard from "react-tinder-card";
 import { TiHeartFullOutline, TiRefresh, TiTimesOutline } from "react-icons/ti";
