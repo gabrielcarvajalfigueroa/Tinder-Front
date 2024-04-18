@@ -1,5 +1,3 @@
-import ProfileCard from "@/components/ui/profileCard";
-import MatchCard from "@/components/ui/tinderCards";
 import TinderCards from "@/components/ui/tinderCards";
 import React from "react";
 

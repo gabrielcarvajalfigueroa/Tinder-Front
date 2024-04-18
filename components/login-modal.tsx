@@ -3,13 +3,39 @@ import Link from "next/link";
 import { Card } from "./ui/card";
 
 import { redirect } from 'next/navigation'
+import {useMutation} from "@apollo/client";
+import {loginMutation} from "@/graphQL/mutations";
+import {FormEvent, useState} from "react";
+
 
 export default function LoginModal() {
+    const [loginM] = useMutation(loginMutation);
+    const [formData, setFormData] = useState({ email: '', password: '' });//Falta agregar campos
+    const [loadingButton, setLoading] = useState(false);
+    const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
 
-    async function bekioslab(){
-        'use server'        
-        redirect('/tinder_ucn');
-    }
+        try {
+            setLoading(true);
+            const response = await loginM({
+                variables: {
+                    input: {
+                        Email: formData.email,
+                        Password: formData.password
+                    }
+                }
+            });
+            console.log(response.data);
+            const {loginUser: user} = response.data;
+            console.log(user, 'user');
+            localStorage.setItem('token', user.Token);
+            setLoading(false);
+            router.push('/')
+        }catch (e) {
+            console.log(e);
+            setLoading(false)
+        }
+    };
 
   return (
     <div className="fixed inset-0 flex items-center justify-center z-10 bg-opacity-50">
