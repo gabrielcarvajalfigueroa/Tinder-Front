@@ -1,46 +1,50 @@
-
-import Link from "next/link";
+// UI Imports
 import { Card } from "./ui/card";
 
+// Next SSR Imports
+import Link from "next/link";
+import { cookies } from "next/headers";
 import { redirect } from 'next/navigation'
-import {useMutation} from "@apollo/client";
-import {loginMutation} from "@/graphQL/mutations";
-import {FormEvent, useState} from "react";
+
+// GraphQL Imports
+import { getClient } from "@/lib/client";
+import { CREATE_LOGIN_MUTATION } from "@/graphQL/mutations";
 
 
-export default function LoginModal() {
-    const [loginM] = useMutation(loginMutation);
-    const [formData, setFormData] = useState({ email: '', password: '' });//Falta agregar campos
-    const [loadingButton, setLoading] = useState(false);
-    const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
+export default function LoginModal() {    
+    
+    async function handleLogin(formData: FormData){
+      'use server'        
+        
+        const client = getClient();
+  
+        const loginInput = {          
+          mail: formData.get('email'),
+          password: formData.get('password'),
+        }          
+  
+        const { data } = await client.mutate({
+          mutation: CREATE_LOGIN_MUTATION,
+          variables: {
+              loginInput,
+          },
+        });          
 
-        try {
-            setLoading(true);
-            const response = await loginM({
-                variables: {
-                    input: {
-                        Email: formData.email,
-                        Password: formData.password
-                    }
-                }
-            });
-            console.log(response.data);
-            const {loginUser: user} = response.data;
-            console.log(user, 'user');
-            localStorage.setItem('token', user.Token);
-            setLoading(false);
-            router.push('/')
-        }catch (e) {
-            console.log(e);
-            setLoading(false)
+        if (data){          
+
+          cookies().set('jwt', data.loginUsersTest);
+
+          redirect('/tinder_ucn');
         }
-    };
+        else{
+          console.log("ERROR AL LOGEAR USUARIO");
+        }      
+    }
 
   return (
     <div className="fixed inset-0 flex items-center justify-center z-10 bg-opacity-50">
       <Card className="max-w-md w-full p-6 bg-white rounded-lg shadow-lg">
-        <form className="mt-4 px-8 py-6" action={bekioslab}>
+        <form className="mt-4 px-8 py-6" action={handleLogin}>
           <h1 className="text-2xl font-bold mb-4">Inicia Sesión</h1>
 
           <div className="mb-4">
