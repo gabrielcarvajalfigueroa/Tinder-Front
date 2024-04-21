@@ -10,3 +10,17 @@ export const GET_USER_BY_ID_QUERY = gql`
       }
     }
 `;
+
+export const USERS_QUERY = gql`
+  query {
+    user {
+      _id
+      name
+      mail
+      career
+      photo
+      year
+    }
+  }
+`;
+

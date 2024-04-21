@@ -1,14 +1,16 @@
 'use client'
-import React, { useState, useMemo, useRef } from 'react';
+import React, {useState, useMemo, useRef, useEffect} from 'react';
 import TinderCard from 'react-tinder-card';
 import { TiHeartFullOutline, TiRefresh, TiTimesOutline } from 'react-icons/ti';
-import { gql, useQuery } from '@apollo/client';
+import {gql, useMutation, useQuery} from '@apollo/client';
 
 import '@/components/ui/css/tinderCards.css';
 import '@/components/ui/css/swipeButton.css';
-import {API, Direction, Props} from "@/interfaces";
+import {API, Direction} from "@/interfaces";
 
 import {user} from "@nextui-org/react";
+import invariant from "ts-invariant";
+import error = invariant.error;
 
 interface User {
     _id: string;
@@ -18,6 +20,10 @@ interface User {
     career: string;
     photo: string;
     year: string;
+}
+interface Props {
+    userId: string;
+    users: User[];
 }
 
 const USER_QUERY = gql`
@@ -32,18 +38,29 @@ const USER_QUERY = gql`
     }
   }
 `;
+const LIKE_USER_MUTATION = gql`
+    mutation LikeUser($userId: String!, $likedUserId: String!) {
+  likeUser(userId: $userId, likedUserId: $likedUserId) {
+    user1
+    user2
+  }
+}
+
+`;
+const GET_MATCHES_MUTATION = gql`
+   mutation GetMatch($loggedInUser: String!, $likedUser: String!) {
+  getMatch(loggedInUser: $loggedInUser, likedUser: $likedUser) 
+}
+`;
 
 
-const TinderCards: React.FC<Props> =  ({ userId }) => {
-    const { data, loading } = useQuery(USER_QUERY);
-    const filteredUsers = data?.user?.filter(user => user._id !== userId);
-    let db: User[] = filteredUsers || [];
-
-
+const TinderCards: React.FC<Props> =  ({ userId, users}) => {
+    const filteredUsers : User[] = users?.filter(user => user._id !== userId);
+    const db: User[] = filteredUsers;
 
     console.log(db, "este es el db");
 
-    const [currentIndex, setCurrentIndex] = useState<number>(db.length - 1 || 0);
+    const [currentIndex, setCurrentIndex] = useState<number>(db.length - 1 );
     const [lastDirection, setLastDirection] = useState<string | undefined>();
     // used for outOfFrame closure
     const currentIndexRef = useRef<number>(currentIndex);
@@ -55,15 +72,12 @@ const TinderCards: React.FC<Props> =  ({ userId }) => {
                 .map(() => React.createRef<API >()),
         []
     );
-
     const updateCurrentIndex = (val: number) => {
         setCurrentIndex(val);
         currentIndexRef.current = val;
     };
 
-    const canGoBack = currentIndex < db.length - 1
-
-    const canSwipe = currentIndex >= 1;
+    const canSwipe = currentIndex >= 0;
 
     // set last direction and decrease current index
 
@@ -78,27 +92,43 @@ const TinderCards: React.FC<Props> =  ({ userId }) => {
             childRefs[idx].current?.restoreCard();
         }
     };
-
-    const swipe = async (dir: Direction): Promise<void> => {
+    const [likeUser] = useMutation(LIKE_USER_MUTATION, {
+        onError: (error) => {
+            console.error("Error liking user:", error);
+        }
+    });
+    const [getMatch, { data: matchData }] = useMutation(GET_MATCHES_MUTATION, {
+        onError: (error) => {
+            console.error("Error getting match:", error);
+        }
+    });
+    const swipe = async (dir: Direction) => {
         if (canSwipe && currentIndex < db.length) {
             await childRefs[currentIndex].current?.swipe(dir);
+            if (dir === 'left') {
+                const likedUserId = db[currentIndex]._id;
+                likeUser({
+                    variables: { userId, likedUserId }
+                });
+                // Check for match
+                getMatch({
+                    variables: { loggedInUser: userId, likedUser: likedUserId }
+                }).then(response => {
+                    if (response.data.getMatch) {
+                        console.log("It's a match!");
+                        alert("It's a match!")
+                        // Handle match...
+                    }
+                });
+
+            } else {
+                console.log("dislike");
+            }
         }
     };
 
-    if (loading) {
-        return <div>loading.....</div>;
-    }
-
     return (
         <div>
-            <link
-                href='https://fonts.googleapis.com/css?family=Damion&display=swap'
-                rel='stylesheet'
-            />
-            <link
-                href='https://fonts.googleapis.com/css?family=Alatsi&display=swap'
-                rel='stylesheet'
-            />
             <div className='tinderCard_container'>
                 {db
                     .map((character, index) => (
@@ -130,10 +160,10 @@ const TinderCards: React.FC<Props> =  ({ userId }) => {
             </div>
             <div className='swipeButton'>
                 <button className='button heart' onClick={() => swipe('left')}>
-                    <TiHeartFullOutline />
+                    <TiHeartFullOutline/>
                 </button>
                 <button className='button times' onClick={() => swipe('right')}>
-                    <TiTimesOutline />
+                    <TiTimesOutline/>
                 </button>
             </div>
         </div>
