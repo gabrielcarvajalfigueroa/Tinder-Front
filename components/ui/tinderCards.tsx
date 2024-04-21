@@ -1,133 +1,143 @@
-"use client"
+'use client'
+import React, { useState, useMemo, useRef } from 'react';
+import TinderCard from 'react-tinder-card';
+import { TiHeartFullOutline, TiRefresh, TiTimesOutline } from 'react-icons/ti';
+import { gql, useQuery } from '@apollo/client';
 
-import React, { useState, useMemo, useRef } from 'react'
-import TinderCard from 'react-tinder-card'
-import "@/components/ui/css/tinderCards.css";
-import "@/components/ui/css/swipeButton.css";
-import { TiHeartFullOutline, TiRefresh, TiTimesOutline } from "react-icons/ti";
+import '@/components/ui/css/tinderCards.css';
+import '@/components/ui/css/swipeButton.css';
+import {API, Direction, Props} from "@/interfaces";
 
-import { gql, useQuery } from "@apollo/client";
+import {user} from "@nextui-org/react";
+
+interface User {
+    _id: string;
+    name: string;
+    password: string;
+    mail: string;
+    career: string;
+    photo: string;
+    year: string;
+}
 
 const USER_QUERY = gql`
-query{
-  user{
-   _id
-   name
-   password
-   mail
-   career
-   photo
- }
- }
+  query {
+    user {
+      _id
+      name
+      mail
+      career
+      photo
+      year
+    }
+  }
 `;
 
 
-const TinderCards = () => {
-  const { data, loading } = useQuery(USER_QUERY);
-  
+const TinderCards: React.FC<Props> =  ({ userId }) => {
+    const { data, loading } = useQuery(USER_QUERY);
+    const filteredUsers = data?.user?.filter(user => user._id !== userId);
+    let db: User[] = filteredUsers || [];
 
-  const db = data?.user || [];
 
-  console.log(db);
 
-  const [currentIndex, setCurrentIndex] = useState(db.length - 1)
-  const [lastDirection, setLastDirection] = useState()
-  // used for outOfFrame closure
-  const currentIndexRef = useRef(currentIndex)
+    console.log(db, "este es el db");
 
-  const childRefs = useMemo(
-    () =>
-      Array(db.length)
-        .fill(0)
-        .map((i) => React.createRef()),
-    []
-  )
+    const [currentIndex, setCurrentIndex] = useState<number>(db.length - 1 || 0);
+    const [lastDirection, setLastDirection] = useState<string | undefined>();
+    // used for outOfFrame closure
+    const currentIndexRef = useRef<number>(currentIndex);
 
-  const updateCurrentIndex = (val) => {
-    setCurrentIndex(val)
-    currentIndexRef.current = val
-  }
+    const childRefs: React.MutableRefObject<API >= useMemo(
+        () =>
+            Array(db.length)
+                .fill(2)
+                .map(() => React.createRef<API >()),
+        []
+    );
 
-  const canGoBack = currentIndex < db.length - 1
+    const updateCurrentIndex = (val: number) => {
+        setCurrentIndex(val);
+        currentIndexRef.current = val;
+    };
 
-  const canSwipe = currentIndex >= 0
+    const canGoBack = currentIndex < db.length - 1
 
-  // set last direction and decrease current index
-  const swiped = (direction, nameToDelete, index) => {
-    setLastDirection(direction)
-    updateCurrentIndex(index - 1)
-  }
+    const canSwipe = currentIndex >= 1;
 
-  const outOfFrame = (name, idx) => {
-    console.log(`${name} (${idx}) left the screen!`, currentIndexRef.current)
-    // handle the case in which go back is pressed before card goes outOfFrame
-    currentIndexRef.current >= idx && childRefs[idx].current.restoreCard()
-    // TODO: when quickly swipe and restore multiple times the same card,
-    // it happens multiple outOfFrame events are queued and the card disappear
-    // during latest swipes. Only the last outOfFrame event should be considered valid
-  }
+    // set last direction and decrease current index
 
-  const swipe = async (dir) => {
-    if (canSwipe && currentIndex < db.length) {
-      await childRefs[currentIndex].current.swipe(dir) // Swipe the card!
+    const swiped = (direction: string, nameToDelete: string, index: number) => {
+        setLastDirection(direction);
+        updateCurrentIndex(index - 1);
+    };
+
+    const outOfFrame = (name: string, idx: number): void => {
+        console.log(`${name} (${idx}) left the screen!`, currentIndexRef.current);
+        if (currentIndexRef.current >= idx && childRefs[idx].current) {
+            childRefs[idx].current?.restoreCard();
+        }
+    };
+
+    const swipe = async (dir: Direction): Promise<void> => {
+        if (canSwipe && currentIndex < db.length) {
+            await childRefs[currentIndex].current?.swipe(dir);
+        }
+    };
+
+    if (loading) {
+        return <div>loading.....</div>;
     }
-  }
 
-  // increase current index and show card
-  const goBack = async () => {
-    if (!canGoBack) return
-    const newIndex = currentIndex + 1
-    updateCurrentIndex(newIndex)
-    await childRefs[newIndex].current.restoreCard()
-  }
-
-  if (loading) {
-    return <div>loading.....</div>;
-  }
-
-  return (
-    <div>
-      <link
-        href='https://fonts.googleapis.com/css?family=Damion&display=swap'
-        rel='stylesheet'
-      />
-      <link
-        href='https://fonts.googleapis.com/css?family=Alatsi&display=swap'
-        rel='stylesheet'
-      />
-      <h1>UCN</h1>
-      <div className='tinderCard_container'>
-        {db.map((character, index) => (
-          <TinderCard
-            ref={childRefs[index]}
-            className='swipe'
-            key={character.name}
-            onSwipe={(dir) => swiped(dir, character.name, index)}
-            onCardLeftScreen={() => outOfFrame(character.name, index)}
-          >
-            <div
-              style={{ backgroundImage: 'url(' + character.photo + ')' }}
-              className='card'
-            >
-              <h3>{character.name}</h3>
+    return (
+        <div>
+            <link
+                href='https://fonts.googleapis.com/css?family=Damion&display=swap'
+                rel='stylesheet'
+            />
+            <link
+                href='https://fonts.googleapis.com/css?family=Alatsi&display=swap'
+                rel='stylesheet'
+            />
+            <div className='tinderCard_container'>
+                {db
+                    .map((character, index) => (
+                    <TinderCard
+                        className='swipe'
+                        key={character.name}
+                        flickOnSwipe={false}
+                        onSwipe={(dir) => swiped(dir, character.name, index)}
+                        onCardLeftScreen={() => outOfFrame(character.name, index)}
+                        preventSwipe={['up', 'down']}
+                        ref={childRefs[index]}
+                    >
+                        <div
+                            className='card'
+                            style={{
+                                backgroundImage: `url(${character.photo})`,
+                            }}
+                        >
+                            <div className='card_content'>
+                                <div className='info_background'>
+                                    <h3 style={{ color: 'black' }}>{character.name}</h3>
+                                    <p>Carrera: {character.career}</p>
+                                    <p>Año de carrera: {character.year}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </TinderCard>
+                ))}
             </div>
-          </TinderCard>
-        ))}
-      </div>
-      <div className="swipeButton">
-                <button className="button heart" onClick={() => swipe('left')}>
+            <div className='swipeButton'>
+                <button className='button heart' onClick={() => swipe('left')}>
                     <TiHeartFullOutline />
                 </button>
-                <button className="button refresh" onClick={() => goBack()}>
-                    <TiRefresh />
-                </button>
-                <button className="button times" onClick={() => swipe('right')}>
+                <button className='button times' onClick={() => swipe('right')}>
                     <TiTimesOutline />
                 </button>
             </div>
-    </div>
-  )
-
-}
+        </div>
+    );
+};
 
 export default TinderCards;

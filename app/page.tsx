@@ -19,7 +19,7 @@ export default function Homepage({ searchParams }: SearchParamProps) {
                 <img src="/background.png" alt="Background Image" className="w-full h-full object-cover opacity-40"/>
             </div>
 
-            <NavBar/>
+
 
             {showLogin && <LoginModal/>}
             {showRegister && <RegisterModal/>}

@@ -32,4 +32,6 @@ export interface Props {
     onSwipeRequirementUnfulfilled?: SwipeRequirementUnfulfilledUpdate;
     className?: string;
     children?: React.ReactNode;
+    userId: string;
+
 }
