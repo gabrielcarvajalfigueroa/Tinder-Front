@@ -16,16 +16,20 @@ query{
    password
    mail
    career
+   photo
  }
  }
 `;
 
 
-const db = [ useQuery(USER_QUERY)]
+const TinderCards = () => {
+  const { data, loading } = useQuery(USER_QUERY);
+  
 
-console.log(db);
+  const db = data?.user || [];
 
-function TinderCards () {
+  console.log(db);
+
   const [currentIndex, setCurrentIndex] = useState(db.length - 1)
   const [lastDirection, setLastDirection] = useState()
   // used for outOfFrame closure
@@ -77,6 +81,10 @@ function TinderCards () {
     await childRefs[newIndex].current.restoreCard()
   }
 
+  if (loading) {
+    return <div>loading.....</div>;
+  }
+
   return (
     <div>
       <link
@@ -98,7 +106,7 @@ function TinderCards () {
             onCardLeftScreen={() => outOfFrame(character.name, index)}
           >
             <div
-              style={{ backgroundImage: 'url(' + character.url + ')' }}
+              style={{ backgroundImage: 'url(' + character.photo + ')' }}
               className='card'
             >
               <h3>{character.name}</h3>
@@ -119,6 +127,7 @@ function TinderCards () {
             </div>
     </div>
   )
+
 }
 
 export default TinderCards;
