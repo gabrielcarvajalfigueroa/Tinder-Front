@@ -1,11 +1,48 @@
-import Link from "next/link";
+// UI Imports
 import { Card } from "./ui/card";
 
+// Next SSR Imports
+import { redirect } from 'next/navigation'
+import Link from "next/link";
+
+// GraphQL Imports
+import { getClient } from "@/lib/client";
+import { CREATE_USER_MUTATION } from "@/graphQL/mutations";
+
+
 export default function RegisterModal() {
+
+  async function handleRegister(formData: FormData){
+    'use server'        
+    
+      const client = getClient();
+
+      const userInput = {
+        name: formData.get('username'),
+        mail: formData.get('email'),
+        password: formData.get('password'),
+      }
+
+      const { data } = await client.mutate({
+        mutation: CREATE_USER_MUTATION,
+        variables: {
+            userInput,
+        },
+      });
+
+      if (data){
+        redirect('/tinder_ucn');
+      }
+      else{
+        console.log("ERROR AL REGISTRAR USUARIO");
+      }        
+  }
+
+
   return (
     <div className="fixed inset-0 flex items-center justify-center z-10  bg-opacity-75">
       <Card className="max-w-md w-full p-6 bg-white rounded-lg shadow-lg">
-        <form className="mt-4 px-8 py-6">
+        <form className="mt-4 px-8 py-6" action={handleRegister}>
           <h1 className="text-2xl font-bold mb-4">Crea tu Cuenta</h1>
 
           <div className="mb-4">

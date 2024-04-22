@@ -1,7 +1,7 @@
 .swipeButton {
     display: flex;
     justify-content: center;
-    margin-top: -20px;
+    margin-top: 40px;
 }
 .button {
     background-color: transparent;
