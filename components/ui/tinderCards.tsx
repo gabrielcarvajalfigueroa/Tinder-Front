@@ -7,7 +7,7 @@ import {gql, useMutation, useQuery} from '@apollo/client';
 import '@/components/ui/css/tinderCards.css';
 import '@/components/ui/css/swipeButton.css';
 import {API, Direction} from "@/interfaces";
-
+import Alert from '@mui/material/Alert';
 import {user} from "@nextui-org/react";
 import invariant from "ts-invariant";
 import error = invariant.error;
@@ -55,10 +55,9 @@ const GET_MATCHES_MUTATION = gql`
 
 
 const TinderCards: React.FC<Props> =  ({ userId, users}) => {
-    //const filteredUsers : User[] = users?.filter(user => user._id !== userId);
     const db: User[] = users;
 
-
+    const [showMatchAlert, setShowMatchAlert] = useState<boolean>(false);
     const [currentIndex, setCurrentIndex] = useState<number>(db.length - 1 );
     const [lastDirection, setLastDirection] = useState<string | undefined>();
     // used for outOfFrame closure
@@ -116,12 +115,10 @@ const TinderCards: React.FC<Props> =  ({ userId, users}) => {
                 getMatch({
                     variables: { loggedInUser: userId, likedUser: likedUserId}
                 }).then(response => {
-                    console.log(response.data.getMatch, "response");
                     if (response.data.getMatch) {
-                        alert("MATCH")
-                        console.log("MATCH");
+                        setShowMatchAlert(true);
+                        setTimeout(() => setShowMatchAlert(false), 5000);
                     }
-                    console.log("AQUI PASE");
                 });
 
             } else {
@@ -169,6 +166,11 @@ const TinderCards: React.FC<Props> =  ({ userId, users}) => {
                     <TiTimesOutline/>
                 </button>
             </div>
+            {showMatchAlert && (
+                <Alert severity="success">
+                    ❤️ HICISTE MATCH CON {db[currentIndex +1]?.name.toUpperCase()}! ❤️ ¡Felicidades!
+                </Alert>
+            )}
         </div>
     );
 };

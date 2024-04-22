@@ -13,8 +13,8 @@ import { CREATE_USER_MUTATION } from "@/graphQL/mutations";
 export default function RegisterModal() {
 
   async function handleRegister(formData: FormData){
-    'use server'        
-    
+    'use server'
+
       const client = getClient();
 
       const userInput = {
@@ -31,11 +31,11 @@ export default function RegisterModal() {
       });
 
       if (data){
-        redirect('/tinder_ucn');
+        redirect('/');
       }
       else{
         console.log("ERROR AL REGISTRAR USUARIO");
-      }        
+      }
   }
 
 

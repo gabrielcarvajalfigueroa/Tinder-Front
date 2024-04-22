@@ -11,7 +11,10 @@
   "dependencies": {
     "@apollo/client": "^3.9.11",
     "@apollo/experimental-nextjs-app-support": "^0.10.0",
+    "@emotion/react": "^11.11.4",
+    "@emotion/styled": "^11.11.5",
     "@hugeicons/react-pro": "^0.2.3",
+    "@mui/material": "^5.15.15",
     "@nextui-org/react": "^2.2.10",
     "@react-spring/web": "^9.5.5",
     "class-variance-authority": "^0.7.0",
