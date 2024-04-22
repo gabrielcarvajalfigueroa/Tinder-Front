@@ -7,6 +7,8 @@ export const GET_USER_BY_ID_QUERY = gql`
         mail
         career
         description
+        photo
+        year
       }
     }
 `;
@@ -20,7 +22,13 @@ export const USERS_QUERY = gql`
       career
       photo
       year
+      likes
     }
   }
 `;
 
+export const MATCHES_QUERY = gql`
+  query MatchesQuery($userId: String!) {
+    getUserMatches(userId: $userId) 
+  }
+`;

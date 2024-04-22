@@ -55,8 +55,8 @@ const GET_MATCHES_MUTATION = gql`
 
 
 const TinderCards: React.FC<Props> =  ({ userId, users}) => {
-    const filteredUsers : User[] = users?.filter(user => user._id !== userId);
-    const db: User[] = filteredUsers;
+    //const filteredUsers : User[] = users?.filter(user => user._id !== userId);
+    const db: User[] = users;
 
     console.log(db, "este es el db");
 

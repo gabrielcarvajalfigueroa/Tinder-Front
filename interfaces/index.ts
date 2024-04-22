@@ -1,16 +1,14 @@
 import React from "react";
 
 export interface User {
-    _id?: number;
+    _id: string;
     name: string;
-    photo: string;
+    password: string;
+    mail: string;
     career: string;
+    photo: string;
     year: string;
-    Email?: string;
-    Password?: string;
-    Token?: string;
 }
-
 export interface API {
     swipe(dir?: Direction): Promise<void>;
     restoreCard(): Promise<void>;

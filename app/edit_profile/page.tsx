@@ -13,15 +13,15 @@ import { CREATE_UPDATE_MUTATION } from '@/graphQL/mutations';
 
 
 async function getUserData(id: String){
-    
-    const client = getClient();          
+
+    const client = getClient();
 
     const { data } = await client.query({
     query: GET_USER_BY_ID_QUERY,
     variables: {
         "userId": id,
     },
-    });    
+    });
 
     return data.getUserById;
 }
@@ -30,24 +30,25 @@ export default async function EditProfile() {
 
     const token = cookies().get('jwt');
 
-    const decoded = jwtDecode(token.value);    
+    const decoded = jwtDecode(token.value);
 
     const data = await getUserData(decoded.id);
 
     async function handleUpdate(formData: FormData){
-        'use server'        
-    
+        'use server'
+
           const client = getClient();
-    
+
           //TODO: Revisar porque el parametro description se devuelve como null
           const updateInput = {
             name: formData.get('name'),
             mail: formData.get('email'),
             career: formData.get('carrera'),
+            year: formData.get('year'),
             //description: formData.get('description'),
-            
-          }          
-    
+
+          }
+
           const { data } = await client.mutate({
             mutation: CREATE_UPDATE_MUTATION,
             variables: {
@@ -55,7 +56,7 @@ export default async function EditProfile() {
                 updateInput,
             },
           });
-    
+
           if (data){
             console.log("Update realizado con exito")
           }
@@ -72,7 +73,7 @@ export default async function EditProfile() {
                     <div className="w-1/3 bg-gray-200 p-4">
                         <img src="https://raw.githubusercontent.com/gabrielcarvajalfigueroa/Tinder-Front/matches-view-development/app/ui/images/duendeLab.jpg" alt="User Avatar" className="w-full h-auto rounded-full" />
                     </div>
-    
+
                     {/* Columna de la derecha: Campos editables */}
                     <div className="w-2/3 p-4">
                         <h1 className="text-2xl font-semibold mb-4">Editar Perfil</h1>
@@ -89,7 +90,11 @@ export default async function EditProfile() {
                             <input type="text" id="carrera" name="carrera" defaultValue={data.career} className="mt-1 px-4 py-2 w-full border rounded-md focus:outline-none focus:border-blue-500" />
                         </div>
                         <div className="mb-4">
-                            <label htmlFor="description" className="block text-gray-700">Descripción:</label>                            
+                            <label htmlFor="year" className="block text-gray-700">Año de carrera:</label>
+                            <input type="text" id="year" name="year" defaultValue={data.year} className="mt-1 px-4 py-2 w-full border rounded-md focus:outline-none focus:border-blue-500" />
+                        </div>
+                        <div className="mb-4">
+                            <label htmlFor="description" className="block text-gray-700">Descripción:</label>
                             <textarea name="description" id="description" form="editProfileForm" defaultValue={data.description} className="mt-1 h-fit px-4 py-2 w-full border rounded-md focus:outline-none focus:border-blue-500" />
                         </div>
                         {/* Agrega más campos editables según sea necesario */}
@@ -97,7 +102,7 @@ export default async function EditProfile() {
                             <button type="submit" className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
                                 Guardar Cambios
                             </button>
-    
+
                             <Link href="/" className="bg-gray-200 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50">
                                 Cancelar
                             </Link>
@@ -107,5 +112,5 @@ export default async function EditProfile() {
             </div>
         </div>
     );
-    
+
 }
