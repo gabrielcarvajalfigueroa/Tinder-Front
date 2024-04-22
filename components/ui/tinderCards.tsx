@@ -58,18 +58,17 @@ const TinderCards: React.FC<Props> =  ({ userId, users}) => {
     //const filteredUsers : User[] = users?.filter(user => user._id !== userId);
     const db: User[] = users;
 
-    console.log(db, "este es el db");
 
     const [currentIndex, setCurrentIndex] = useState<number>(db.length - 1 );
     const [lastDirection, setLastDirection] = useState<string | undefined>();
     // used for outOfFrame closure
     const currentIndexRef = useRef<number>(currentIndex);
 
-    const childRefs: React.MutableRefObject<API >= useMemo(
+    const childRefs: React.MutableRefObject<API>[] = useMemo(
         () =>
             Array(db.length)
                 .fill(2)
-                .map(() => React.createRef<API >()),
+                .map(() => React.createRef<API>() as React.MutableRefObject<API>), // Convertimos cada RefObject a MutableRefObject
         []
     );
     const updateCurrentIndex = (val: number) => {
@@ -102,23 +101,27 @@ const TinderCards: React.FC<Props> =  ({ userId, users}) => {
             console.error("Error getting match:", error);
         }
     });
-    const swipe = async (dir: Direction) => {
+    const swipe = async (dir: Direction, userId : string) => {
         if (canSwipe && currentIndex < db.length) {
             await childRefs[currentIndex].current?.swipe(dir);
             if (dir === 'left') {
                 const likedUserId = db[currentIndex]._id;
-                likeUser({
-                    variables: { userId, likedUserId }
+                await likeUser({
+                    variables: {
+                        userId: userId,
+                        likedUserId: likedUserId
+                    }
                 });
                 // Check for match
                 getMatch({
-                    variables: { loggedInUser: userId, likedUser: likedUserId }
+                    variables: { loggedInUser: userId, likedUser: likedUserId}
                 }).then(response => {
+                    console.log(response.data.getMatch, "response");
                     if (response.data.getMatch) {
-                        console.log("It's a match!");
-                        alert("It's a match!")
-                        // Handle match...
+                        alert("MATCH")
+                        console.log("MATCH");
                     }
+                    console.log("AQUI PASE");
                 });
 
             } else {
@@ -159,10 +162,10 @@ const TinderCards: React.FC<Props> =  ({ userId, users}) => {
                 ))}
             </div>
             <div className='swipeButton'>
-                <button className='button heart' onClick={() => swipe('left')}>
+                <button className='button heart' onClick={() => swipe('left', userId)}>
                     <TiHeartFullOutline/>
                 </button>
-                <button className='button times' onClick={() => swipe('right')}>
+                <button className='button times' onClick={() => swipe('right', userId)}>
                     <TiTimesOutline/>
                 </button>
             </div>

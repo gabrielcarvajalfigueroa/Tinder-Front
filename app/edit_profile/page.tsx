@@ -1,6 +1,6 @@
 // Imports
 import React from 'react';
-import { jwtDecode } from "jwt-decode";
+import {jwtDecode} from "jwt-decode";
 
 // Next SSR Imports
 import Link from 'next/link';
@@ -10,7 +10,12 @@ import { cookies } from 'next/headers';
 import { getClient } from "@/lib/client";
 import { GET_USER_BY_ID_QUERY } from '@/graphQL/querys';
 import { CREATE_UPDATE_MUTATION } from '@/graphQL/mutations';
+import { JwtPayload as BaseJwtPayload } from 'jwt-decode';
+import {RequestCookie} from "next/dist/compiled/@edge-runtime/cookies";
 
+interface JwtPayload extends BaseJwtPayload {
+    id: string;
+}
 
 async function getUserData(id: String){
 
@@ -28,11 +33,14 @@ async function getUserData(id: String){
 
 export default async function EditProfile() {
 
-    const token = cookies().get('jwt');
+    const jwtCookie = cookies().get('jwt');
+    if (!jwtCookie) {
+        throw new Error('JWT token not found');
+    }
+    const token : RequestCookie = jwtCookie;
 
-    const decoded = jwtDecode(token.value);
-
-    const data = await getUserData(decoded.id);
+    const decoded = jwtDecode<JwtPayload>(token.value);
+    const data : any= await getUserData(decoded.id);
 
     async function handleUpdate(formData: FormData){
         'use server'
